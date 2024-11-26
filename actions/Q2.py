@@ -22,4 +22,10 @@ class Window(tk.Toplevel):
         #TODO Q2 Modifier la suite du code (en se basant sur le code de F1) pour répondre à Q2
 
         # On définit les colonnes que l'on souhaite afficher dans la fenêtre et la requête
+        columns = ('zone_climatique', 'nom_departement', 'temperature_moy_max')
+        query = """SELECT zone_climatique, nom_departement, temperature_moy_mesure AS temperature_moy_max
+                            FROM Departements JOIN Mesures USING (code_departement) 
+                            WHERE temperature_moy_mesure IN (SELECT MAX(temperature_moy_mesure) FROM Mesures )"""
         # On utilise la fonction createTreeViewDisplayQuery pour afficher les résultats de la requête
+        tree = display.createTreeViewDisplayQuery(self, columns, query, 200)
+        tree.grid(row=0, sticky="nswe")
