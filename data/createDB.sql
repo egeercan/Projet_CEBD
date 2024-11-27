@@ -39,15 +39,14 @@ create  table  Communes(
 );
 
 create table Travaux(
-    id_travaux INTEGER,
+    id_travaux INTEGER PRIMARY KEY AUTOINCREMENT,
     code_region INTEGER,
     code_departement TEXT,
     cout_total_ht_travaux FLOAT,
     cout_induit_ht_travaux FLOAT,
-    anne_travaux INTEGER,
+    annee_travaux INTEGER,
     type_logement_travaux TEXT,
-    anne_construction_logement_travaux INTEGER,
-    constraint pk_travaux primary key (id_travaux),
+    annee_construction_logement_travaux INTEGER,
     constraint fk_travaux_code_region foreign key (code_region) references Regions(code_region),
     constraint fk_travaux_code_dep foreign key (code_departement) references  Departements(code_departement)
 
@@ -83,3 +82,4 @@ create table Photovoltaique(
     constraint pk_photovoltaique primary key (id_travaux),
     constraint fk_photovoltaique foreign key (id_travaux) references Travaux(id_travaux)
 );
+

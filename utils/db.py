@@ -92,11 +92,32 @@ def insertDB():
              "insert into Mesures values (?, ?, ?, ?, ?)",
              ['code_insee_departement', 'date_obs', 'tmin', 'tmax', 'tmoy']
         )
-
+        # On ajoute les communes
         read_csv_file(
             "data/csv/Communes.csv", ';',
             "insert into Communes values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             ['Code Département', 'Code Commune', 'Commune','Statut','Altitude Moyenne','Population','Superficie','Code Canton','Code Arrondissement']
+        )
+
+        # On ajoute les travaux de l'Isolation
+        read_csv_file(
+            "data/csv/Isolation.csv", ';',
+            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
+            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement', 'annee_construction']
+        )
+        # On ajoute les travaux de Chauffage
+        read_csv_file(
+            "data/csv/Chauffage.csv", ';',
+            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
+            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement',
+             'annee_construction']
+        )
+        # On ajoute les travaux de Photovoltaique
+        read_csv_file(
+            "data/csv/Photovoltaique.csv", ';',
+            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
+            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement',
+             'annee_construction']
         )
 
     except Exception as e:
