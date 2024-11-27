@@ -18,12 +18,15 @@ class Window(tk.Toplevel):
         tab1 = ttk.Frame(tabControl)
         tab2 = ttk.Frame(tabControl)
         tab3 = ttk.Frame(tabControl)
+        tab4 = ttk.Frame(tabControl)
         tabControl.add(tab1, text='Mesures (1000 1ères valeurs)')
         tabControl.add(tab2, text='Départements')
         tabControl.add(tab3, text='Régions')
+        tabControl.add(tab4, text='Communes')
         display.defineGridDisplay(tab1, 1, 2)
         display.defineGridDisplay(tab2, 1, 2)
         display.defineGridDisplay(tab3, 1, 2)
+        display.defineGridDisplay(tab4, 1, 2)
         tabControl.grid(row=0, column=0, sticky="nswe")
 
         # Mesures
@@ -67,3 +70,16 @@ class Window(tk.Toplevel):
         scrollbar.grid(row=0, column=1, sticky="ns")
 
         #TODO Q4 Afficher les données des nouvelles tables
+        #Commune
+        columns=('code_departement','code_commune', 'nom_commune','statut_commune','altitude_moyennne_commune','population_commune','superficie_commune','code_canton_commune','code_arrondissement_commune')
+        query="""
+            SELECT code_departement, code_commune, nom_commune, statut_commune,altitude_moyenne_commune,population_commune,superficie_commune,code_canton_commune,code_arrondissement_commune
+            FROM Communes
+            ORDER BY code_commune
+        """
+        tree = display.createTreeViewDisplayQuery(tab4, columns, query)
+        scrollbar = ttk.Scrollbar(tab4, orient='vertical', command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        tree.grid(row=0, sticky="nswe")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+

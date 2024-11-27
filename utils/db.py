@@ -63,6 +63,7 @@ def insertDB():
             ['Code Département', 'Département', 'Code Région']
         )
 
+
         # On renseigne la zone climatique des départements
         read_csv_file(
             "data/csv/ZonesClimatiques.csv", ';',
@@ -90,6 +91,12 @@ def insertDB():
              "data/csv/Mesures.csv", ';',
              "insert into Mesures values (?, ?, ?, ?, ?)",
              ['code_insee_departement', 'date_obs', 'tmin', 'tmax', 'tmoy']
+        )
+
+        read_csv_file(
+            "data/csv/Communes.csv", ';',
+            "insert into Communes values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            ['Code Département', 'Code Commune', 'Commune','Statut','Altitude Moyenne','Population','Superficie','Code Canton','Code Arrondissement']
         )
 
     except Exception as e:
