@@ -100,26 +100,23 @@ def insertDB():
         )
 
         # On ajoute les travaux de l'Isolation
-        read_csv_file(
+        read_csv_file2(
             "data/csv/Isolation.csv", ';',
-            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
-            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement', 'annee_construction']
-        )
-        # On ajoute les travaux de Chauffage
-        read_csv_file(
-            "data/csv/Chauffage.csv", ';',
-            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
-            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement',
-             'annee_construction']
-        )
-        # On ajoute les travaux de Photovoltaique
-        read_csv_file(
-            "data/csv/Photovoltaique.csv", ';',
-            "insert into Travaux (code_region,code_departement,cout_total_ht_travaux,cout_induit_ht_travaux,annee_travaux,type_logement_travaux,annee_construction_logement_travaux) values (?, ?, ?, ?, ?, ?, ?)",
-            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement',
-             'annee_construction']
+            None,
+            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement', 'annee_construction','poste_isolation','isolant','epaisseur','surface'],
+            custom_logic=isolation_logic
+
         )
 
+        # On ajoute les travaux de Chauffage
+        read_csv_file2(
+            "data/csv/Chauffage.csv", ';',
+            None,
+            ['code_region', 'code_departement', 'cout_total_ht', 'cout_induit_ht', 'annee_travaux', 'type_logement',
+             'annee_construction', 'energie_chauffage_avt_travaux', 'energie_chauffage_installee', 'generateur', 'type_chaudiere'],
+            custom_logic=chauffage_logic
+
+        )
     except Exception as e:
         print ("L'erreur suivante s'est produite lors de l'insertion des données : " + repr(e) + ".")
     else:
@@ -157,3 +154,59 @@ def read_csv_file(csvFile, separator, query, columns):
         except IntegrityError as err:
             print(err)
 
+def read_csv_file2(csvFile, separator, query, columns,custom_logic):
+    # Lecture du fichier CSV csvFile avec le séparateur separator
+    # pour chaque ligne, exécution de query en la formatant avec les colonnes columns
+    df = pandas.read_csv(csvFile, sep=separator)
+    df = df.where(pandas.notnull(df), None)
+
+    cursor = data.cursor()
+    for ix, row in df.iterrows():
+        try:
+            tab = []
+            for i in range(len(columns)):
+                # pour échapper les noms avec des apostrophes, on remplace dans les chaines les ' par ''
+                if isinstance(row[columns[i]], str):
+                    row[columns[i]] = row[columns[i]].replace("'", "''")
+                tab.append(row[columns[i]])
+
+            #print(query)
+            custom_logic(cursor, tab)
+        except IntegrityError as err:
+            print(err)
+        except Exception as ex:
+            print(f"Erreur: {ex}")
+
+def isolation_logic(cursor, row):
+    travaux_query = """
+    INSERT INTO Travaux (code_region, code_departement, cout_total_ht_travaux, cout_induit_ht_travaux, 
+                         annee_travaux, type_logement_travaux, annee_construction_logement_travaux) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    cursor.execute(travaux_query, tuple(row[:7]))
+    id_travaux = cursor.lastrowid
+
+    isolation_query = """
+    INSERT INTO Isolation (id_travaux, poste_isolation, isolant_isolation, 
+                           epaisseur_isolation, surface_isolation) 
+    VALUES (?, ?, ?, ?, ?)
+    """
+    isolation_data = (id_travaux,) + tuple(row[7:])
+    cursor.execute(isolation_query, isolation_data)
+
+def chauffage_logic(cursor, row):
+    travaux_query = """
+    INSERT INTO Travaux (code_region, code_departement, cout_total_ht_travaux, cout_induit_ht_travaux, 
+                         annee_travaux, type_logement_travaux, annee_construction_logement_travaux) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    cursor.execute(travaux_query, tuple(row[:7]))
+    id_travaux = cursor.lastrowid
+
+    chauffage_query = """
+    INSERT INTO Chauffage (id_travaux, energie_avant_travaux_chauffage, energie_installee_chauffage, 
+                           generateur_chauffage, type_chaudiere_chauffage) 
+    VALUES (?, ?, ?, ?, ?)
+    """
+    chauffage_data = (id_travaux,) + tuple(row[7:])
+    cursor.execute(chauffage_query, chauffage_data)
